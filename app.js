@@ -1,43 +1,6 @@
 // Story writing app with OpenAI
-let apiKey = '';
 let conversationHistory = [];
 let currentStory = '';
-
-// Check for saved API key on load
-window.addEventListener('DOMContentLoaded', () => {
-    const savedKey = localStorage.getItem('openai_api_key');
-    if (savedKey) {
-        apiKey = savedKey;
-        showMainApp();
-    }
-});
-
-// Save API key and show main app
-function saveApiKey() {
-    const input = document.getElementById('apiKeyInput');
-    const key = input.value.trim();
-
-    if (!key) {
-        alert('Please enter your OpenAI API key! 🔑');
-        return;
-    }
-
-    if (!key.startsWith('sk-')) {
-        alert('Hmm, that doesn\'t look like a valid OpenAI API key. They usually start with "sk-" 🤔');
-        return;
-    }
-
-    apiKey = key;
-    localStorage.setItem('openai_api_key', key);
-    showMainApp();
-}
-
-// Show main app interface
-function showMainApp() {
-    document.getElementById('apiKeySetup').style.display = 'none';
-    document.getElementById('mainApp').style.display = 'block';
-    document.getElementById('userInput').focus();
-}
 
 // Send message and get AI continuation
 async function sendMessage() {
@@ -77,38 +40,25 @@ async function sendMessage() {
     }
 }
 
-// Get AI continuation using OpenAI API
+// Get AI continuation using Netlify serverless function
 async function getAIContinuation() {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('/.netlify/functions/continue-story', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            model: 'gpt-4o-mini',
-            messages: [
-                {
-                    role: 'system',
-                    content: 'You are a creative storytelling partner. Continue the story that the user is writing with 2-3 engaging sentences. Be creative, fun, and match the tone of what the user wrote. Keep it light and entertaining. Don\'t end the story - leave room for the user to continue.'
-                },
-                {
-                    role: 'user',
-                    content: `Continue this story with 2-3 sentences. Keep it fun and leave it open for me to continue:\n\n${currentStory}`
-                }
-            ],
-            temperature: 0.8,
-            max_tokens: 150
+            currentStory: currentStory
         })
     });
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error?.message || 'API request failed');
+        throw new Error(error.error || 'API request failed');
     }
 
     const data = await response.json();
-    return data.choices[0].message.content.trim();
+    return data.continuation;
 }
 
 // Add message to story container
@@ -162,15 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 sendMessage();
             }
         });
-    }
-
-    const apiInput = document.getElementById('apiKeyInput');
-    if (apiInput) {
-        apiInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                saveApiKey();
-            }
-        });
+        // Focus on input when page loads
+        input.focus();
     }
 });
