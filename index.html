@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Let's Write a Story! ✨</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✨ Let's Write a Story! ✨</h1>
+            <p class="tagline">You write a bit, I write a bit, magic happens! 🎭</p>
+        </header>
+
+        <div class="api-key-setup" id="apiKeySetup">
+            <div class="setup-card">
+                <h2>🔑 Let's Get Started!</h2>
+                <p>Pop in your OpenAI API key to begin our storytelling adventure:</p>
+                <input type="password" id="apiKeyInput" placeholder="sk-..." />
+                <button onclick="saveApiKey()" class="btn-primary">Let's Go! 🚀</button>
+                <p class="hint">Don't worry, it stays in your browser! 🔒</p>
+            </div>
+        </div>
+
+        <div class="main-app" id="mainApp" style="display: none;">
+            <div class="story-container" id="storyContainer">
+                <div class="welcome-message">
+                    <p>🎪 Welcome to the story circus! You start, and I'll jump in after you. Let's create something wild!</p>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <textarea
+                    id="userInput"
+                    placeholder="Start writing your story here... Make it spicy! 🌶️"
+                    rows="3"
+                ></textarea>
+                <div class="button-group">
+                    <button onclick="sendMessage()" class="btn-primary" id="sendBtn">
+                        Send & Let AI Continue 🎨
+                    </button>
+                    <button onclick="resetStory()" class="btn-secondary">
+                        Fresh Start 🔄
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Made with chaos and creativity 💫</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
