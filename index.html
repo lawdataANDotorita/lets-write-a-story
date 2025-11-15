@@ -1,44 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Let's Write a Story! ✨</title>
+    <title>בואו נכתוב סיפור! ✨</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>✨ Let's Write a Story! ✨</h1>
-            <p class="tagline">You write a bit, I write a bit, magic happens! 🎭</p>
+            <h1>✨ בואו נכתוב סיפור! ✨</h1>
+            <p class="tagline">אתם כותבים קצת, אני כותב קצת, והקסם קורה! 🎭</p>
         </header>
 
         <div class="main-app" id="mainApp">
+            <div class="style-info" id="styleInfo"></div>
+
             <div class="story-container" id="storyContainer">
                 <div class="welcome-message">
-                    <p>🎪 Welcome to the story circus! You start, and I'll jump in after you. Let's create something wild!</p>
+                    <p>🎪 ברוכים הבאים לקרקס הסיפורים! אתם מתחילים, ואני קופץ פנימה אחריכם. בואו ניצור משהו מדהים!</p>
                 </div>
             </div>
 
             <div class="input-area">
                 <textarea
                     id="userInput"
-                    placeholder="Start writing your story here... Make it spicy! 🌶️"
+                    placeholder="התחילו לכתוב את הסיפור כאן... תהיו יצירתיים! 🌶️"
                     rows="3"
                 ></textarea>
                 <div class="button-group">
                     <button onclick="sendMessage()" class="btn-primary" id="sendBtn">
-                        Send & Let AI Continue 🎨
+                        שלח ותן לבינה המלאכותית להמשיך 🎨
                     </button>
                     <button onclick="resetStory()" class="btn-secondary">
-                        Fresh Start 🔄
+                        התחלה חדשה 🔄
                     </button>
                 </div>
             </div>
         </div>
 
         <footer>
-            <p>Made with chaos and creativity 💫</p>
+            <p>נוצר בכאוס וביצירתיות 💫</p>
         </footer>
     </div>
 
