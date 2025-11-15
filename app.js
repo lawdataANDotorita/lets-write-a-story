@@ -3,6 +3,30 @@ let conversationHistory = [];
 let currentStory = '';
 let currentStyle = null;
 
+// Story styles and periods in Hebrew
+const storyStyles = [
+    'מותחן ויקטוריאני', // Victorian thriller
+    'קומדיה מימי הביניים', // Medieval comedy
+    'מדע בדיוני עתידני', // Futuristic sci-fi
+    'רומן רומנטי מהמאה ה-19', // 19th century romance
+    'מסתורין בסגנון נואר', // Noir mystery
+    'פנטזיה אפית', // Epic fantasy
+    'אימה גותית', // Gothic horror
+    'הרפתקה פיראטים', // Pirate adventure
+    'דרמה שייקספירית', // Shakespearean drama
+    'סאטירה חברתית מודרנית', // Modern social satire
+    'מערבון פראי', // Wild west
+    'אגדה יוונית עתיקה', // Ancient Greek legend
+    'סיפור בלשי בסגנון שרלוק הולמס', // Sherlock Holmes detective story
+    'רומן מדעי בסגנון ג\'ול ורן', // Jules Verne scientific romance
+    'סיפור אימה קוסמי בסגנון לאבקראפט', // Lovecraftian cosmic horror
+    'מחזמר במאה ה-20' // 20th century musical
+];
+
+function getRandomStyle() {
+    return storyStyles[Math.floor(Math.random() * storyStyles.length)];
+}
+
 // Send message and get AI continuation
 async function sendMessage() {
     const input = document.getElementById('userInput');
@@ -26,16 +50,10 @@ async function sendMessage() {
 
     try {
         // Get AI continuation
-        const response = await getAIContinuation();
+        const aiContinuation = await getAIContinuation();
 
-        // If this is the first message, set the style
-        if (!currentStyle && response.style) {
-            currentStyle = response.style;
-            displayStyle(currentStyle);
-        }
-
-        addMessage(response.continuation, 'ai');
-        currentStory += response.continuation + ' ';
+        addMessage(aiContinuation, 'ai');
+        currentStory += aiContinuation + ' ';
     } catch (error) {
         console.error('Error:', error);
         alert('אופס! משהו השתבש. בדקו את המפתח או נסו שוב! 😅\n\n' + error.message);
@@ -57,7 +75,7 @@ async function getAIContinuation() {
         },
         body: JSON.stringify({
             currentStory: currentStory,
-            isFirstMessage: !currentStyle
+            style: currentStyle
         })
     });
 
@@ -67,7 +85,7 @@ async function getAIContinuation() {
     }
 
     const data = await response.json();
-    return data;
+    return data.continuation;
 }
 
 // Add message to story container
@@ -112,18 +130,23 @@ function resetStory() {
     }
 
     currentStory = '';
-    currentStyle = null;
     conversationHistory = [];
     const container = document.getElementById('storyContainer');
     container.innerHTML = '<div class="welcome-message"><p>🎪 קנבס חדש! התחילו את הרפתקת הסיפור החדשה שלכם!</p></div>';
-    const styleInfo = document.getElementById('styleInfo');
-    styleInfo.style.display = 'none';
-    styleInfo.innerHTML = '';
+
+    // Select new random style
+    currentStyle = getRandomStyle();
+    displayStyle(currentStyle);
+
     document.getElementById('userInput').focus();
 }
 
 // Allow Enter key to send (Shift+Enter for new line)
 document.addEventListener('DOMContentLoaded', () => {
+    // Select random style on page load
+    currentStyle = getRandomStyle();
+    displayStyle(currentStyle);
+
     const input = document.getElementById('userInput');
     if (input) {
         input.addEventListener('keypress', (e) => {

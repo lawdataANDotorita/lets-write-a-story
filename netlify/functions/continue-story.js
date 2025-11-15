@@ -46,7 +46,7 @@ exports.handler = async (event, context) => {
 
     try {
         // Parse the request body
-        const { currentStory, isFirstMessage } = JSON.parse(event.body);
+        const { currentStory, style } = JSON.parse(event.body);
 
         if (!currentStory) {
             return {
@@ -55,20 +55,19 @@ exports.handler = async (event, context) => {
             };
         }
 
-        // Select random style if this is the first message
-        const selectedStyle = isFirstMessage ? getRandomStyle() : null;
+        if (!style) {
+            return {
+                statusCode: 400,
+                body: JSON.stringify({ error: 'style is required' })
+            };
+        }
 
-        // Build system prompt based on whether style is selected
-        let systemPrompt;
-        if (selectedStyle) {
-            systemPrompt = `אתה שותף יצירתי לכתיבת סיפורים בעברית. הסגנון שנבחר לסיפור הזה הוא: ${selectedStyle}.
+        // Build system prompt with the selected style
+        const systemPrompt = `אתה שותף יצירתי לכתיבת סיפורים בעברית. הסגנון שנבחר לסיפור הזה הוא: ${style}.
 
 חשוב מאוד: עליך לכתוב רק בעברית! כל המשפטים, כל המילים, הכל צריך להיות בעברית בלבד.
 
 המשך את הסיפור ב-2-3 משפטים מרתקים בסגנון הזה. התאם את הטון, השפה והאווירה לסגנון שנבחר. היה יצירתי, מעניין ומשעשע. אל תסיים את הסיפור - השאר מקום למשתמש להמשיך. כתוב רק בעברית!`;
-        } else {
-            systemPrompt = 'אתה שותף יצירתי לכתיבת סיפורים בעברית. המשך את הסיפור שהמשתמש כותב ב-2-3 משפטים מרתקים. היה יצירתי, כיפי והתאם את הטון למה שהמשתמש כתב. אל תסיים את הסיפור - השאר מקום למשתמש להמשיך. כתוב רק בעברית!';
-        }
 
         // Call OpenAI API
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -108,22 +107,14 @@ exports.handler = async (event, context) => {
         const data = await response.json();
         const aiContinuation = data.choices[0].message.content.trim();
 
-        // Build response
-        const responseBody = {
-            continuation: aiContinuation
-        };
-
-        // Include style only if this is the first message
-        if (selectedStyle) {
-            responseBody.style = selectedStyle;
-        }
-
         return {
             statusCode: 200,
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(responseBody)
+            body: JSON.stringify({
+                continuation: aiContinuation
+            })
         };
 
     } catch (error) {
