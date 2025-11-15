@@ -1,6 +1,7 @@
 // Story writing app with OpenAI
 let conversationHistory = [];
 let currentStory = '';
+let currentStyle = null;
 
 // Send message and get AI continuation
 async function sendMessage() {
@@ -8,7 +9,7 @@ async function sendMessage() {
     const userText = input.value.trim();
 
     if (!userText) {
-        alert('Write something first! Let your creativity flow! ✨');
+        alert('כתבו משהו קודם! תנו לפנטזיה לזרום! ✨');
         return;
     }
 
@@ -20,21 +21,28 @@ async function sendMessage() {
     // Disable input while AI is thinking
     const sendBtn = document.getElementById('sendBtn');
     sendBtn.disabled = true;
-    sendBtn.textContent = 'AI is writing... 🎨';
+    sendBtn.textContent = 'הבינה המלאכותית כותבת... 🎨';
     input.disabled = true;
 
     try {
         // Get AI continuation
-        const aiContinuation = await getAIContinuation();
-        addMessage(aiContinuation, 'ai');
-        currentStory += aiContinuation + ' ';
+        const response = await getAIContinuation();
+
+        // If this is the first message, set the style
+        if (!currentStyle && response.style) {
+            currentStyle = response.style;
+            displayStyle(currentStyle);
+        }
+
+        addMessage(response.continuation, 'ai');
+        currentStory += response.continuation + ' ';
     } catch (error) {
         console.error('Error:', error);
-        alert('Oops! Something went wrong. Check your API key or try again! 😅\n\n' + error.message);
+        alert('אופס! משהו השתבש. בדקו את המפתח או נסו שוב! 😅\n\n' + error.message);
     } finally {
         // Re-enable input
         sendBtn.disabled = false;
-        sendBtn.textContent = 'Send & Let AI Continue 🎨';
+        sendBtn.textContent = 'שלח ותן לבינה המלאכותית להמשיך 🎨';
         input.disabled = false;
         input.focus();
     }
@@ -48,17 +56,18 @@ async function getAIContinuation() {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            currentStory: currentStory
+            currentStory: currentStory,
+            isFirstMessage: !currentStyle
         })
     });
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'API request failed');
+        throw new Error(error.error || 'בקשת API נכשלה');
     }
 
     const data = await response.json();
-    return data.continuation;
+    return data;
 }
 
 // Add message to story container
@@ -76,7 +85,7 @@ function addMessage(text, type) {
 
     const label = document.createElement('div');
     label.className = 'message-label';
-    label.textContent = type === 'user' ? '✍️ You wrote:' : '🎭 AI continues:';
+    label.textContent = type === 'user' ? '✍️ כתבת:' : '🎭 הבינה המלאכותית ממשיכה:';
 
     const content = document.createElement('div');
     content.textContent = text;
@@ -89,16 +98,27 @@ function addMessage(text, type) {
     container.scrollTop = container.scrollHeight;
 }
 
+// Display the story style
+function displayStyle(style) {
+    const styleInfo = document.getElementById('styleInfo');
+    styleInfo.innerHTML = `<p>🎭 <strong>סגנון הסיפור:</strong> ${style}</p>`;
+    styleInfo.style.display = 'block';
+}
+
 // Reset the story
 function resetStory() {
-    if (currentStory && !confirm('Start a fresh story? Your current masterpiece will be lost! 🎨')) {
+    if (currentStory && !confirm('להתחיל סיפור חדש? יצירת המופת הנוכחית תאבד! 🎨')) {
         return;
     }
 
     currentStory = '';
+    currentStyle = null;
     conversationHistory = [];
     const container = document.getElementById('storyContainer');
-    container.innerHTML = '<div class="welcome-message"><p>🎪 Fresh canvas! Start your new story adventure!</p></div>';
+    container.innerHTML = '<div class="welcome-message"><p>🎪 קנבס חדש! התחילו את הרפתקת הסיפור החדשה שלכם!</p></div>';
+    const styleInfo = document.getElementById('styleInfo');
+    styleInfo.style.display = 'none';
+    styleInfo.innerHTML = '';
     document.getElementById('userInput').focus();
 }
 
